@@ -2,6 +2,7 @@ package io.github.gfumagali.rest.controller;
 
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -9,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-
 import static org.springframework.http.HttpStatus.*;
 
 import java.time.format.DateTimeFormatter;
@@ -19,6 +19,8 @@ import java.util.stream.Collectors;
 
 import io.github.gfumagali.domain.entity.ItemPedido;
 import io.github.gfumagali.domain.entity.Pedido;
+import io.github.gfumagali.domain.enums.StatusPedido;
+import io.github.gfumagali.rest.dto.AtualizacaoStatusPedidoDTO;
 import io.github.gfumagali.rest.dto.InformacoesItemPedidoDTO;
 import io.github.gfumagali.rest.dto.InformacoesPedidoDTO;
 import io.github.gfumagali.rest.dto.PedidoDTO;
@@ -55,6 +57,7 @@ public class PedidoController {
             .nomeCliente(pedido.getCliente().getNome())
             .total(pedido.getTotal())
             .dataPedido(pedido.getData().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))
+            .status(pedido.getStatus().name())
             .items(converter(pedido.getItens()))
             .build();
     }
@@ -73,6 +76,13 @@ public class PedidoController {
                 .quantidade(item.getQuantidade())
                 .build()
             ).collect(Collectors.toList());
+    }
 
+    @PatchMapping("/{id}")
+    @ResponseStatus(NO_CONTENT)
+    public void updateStatus(@PathVariable Integer id, @RequestBody AtualizacaoStatusPedidoDTO dto){
+        String status = dto.getNovoStatus();
+
+        service.updateStatus(id, StatusPedido.valueOf(status));
     }
 }

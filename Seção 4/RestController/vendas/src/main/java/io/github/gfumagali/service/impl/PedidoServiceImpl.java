@@ -11,10 +11,12 @@ import io.github.gfumagali.domain.entity.Cliente;
 import io.github.gfumagali.domain.entity.ItemPedido;
 import io.github.gfumagali.domain.entity.Pedido;
 import io.github.gfumagali.domain.entity.Produto;
+import io.github.gfumagali.domain.enums.StatusPedido;
 import io.github.gfumagali.domain.repository.Clientes;
 import io.github.gfumagali.domain.repository.ItemsPedidos;
 import io.github.gfumagali.domain.repository.Pedidos;
 import io.github.gfumagali.domain.repository.Produtos;
+import io.github.gfumagali.exception.PedidoNaoEncontradoException;
 import io.github.gfumagali.exception.RegraNegocioException;
 import io.github.gfumagali.rest.dto.ItemPedidoDTO;
 import io.github.gfumagali.rest.dto.PedidoDTO;
@@ -40,6 +42,7 @@ public class PedidoServiceImpl implements PedidoService {
         pedido.setTotal(dto.getTotal());
         pedido.setData(LocalDate.now());
         pedido.setCliente(cliente);
+        pedido.setStatus(StatusPedido.REALIZADO);
 
         List<ItemPedido> itemsPedido = converterItems(pedido, dto.getItems());
         pedidosRepository.save(pedido);
@@ -74,5 +77,16 @@ public class PedidoServiceImpl implements PedidoService {
     public Optional<Pedido> getCompletePedido(Integer id) {
         return pedidosRepository
             .findByIdFetchItems(id);
+    }
+
+    @Override
+    @Transactional
+    public void updateStatus(Integer id, StatusPedido status) {
+        pedidosRepository
+            .findById(id)
+            .map(pedido -> {
+                pedido.setStatus(status);
+                return pedidosRepository.save(pedido);
+            }).orElseThrow(() -> new PedidoNaoEncontradoException());
     }
 }
