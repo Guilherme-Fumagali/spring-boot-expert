@@ -12,13 +12,11 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 
+@Data
 @Entity
 @Table(name = "cliente")
-@Getter @Setter @ToString
 public class Cliente {
 
     @Id

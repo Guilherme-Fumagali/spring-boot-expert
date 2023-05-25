@@ -2,6 +2,7 @@ package io.github.gfumagali.domain.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.Column;
@@ -13,14 +14,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter @Setter
+import lombok.Data;
+@Data
 @Entity
 @Table(name = "pedido")
 public class Pedido {
-    
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
@@ -42,5 +40,12 @@ public class Pedido {
     @Override
     public String toString() {
         return "Pedido [id=" + id + ", data=" + data + ", total=" + total + "]";
+    }
+
+    public List<ItemPedido> getItens() {
+        if(this.itens == null){
+            this.itens = new ArrayList<>();
+        }
+        return itens;
     }
 }
