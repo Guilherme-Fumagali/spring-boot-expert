@@ -5,11 +5,12 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import io.github.gfumagali.domain.entity.Usuario;
 import io.github.gfumagali.domain.repository.Usuarios;
 import jakarta.transaction.Transactional;
+import io.github.gfumagali.exception.SenhaInvalidaException;
 
 @Service
 public class UsuarioServiceImpl implements UserDetailsService {
@@ -22,6 +23,7 @@ public class UsuarioServiceImpl implements UserDetailsService {
         return repository.save(usuario);
     }
 
+    
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Usuario usuario = repository.findByLogin(username)
@@ -34,6 +36,15 @@ public class UsuarioServiceImpl implements UserDetailsService {
             .password(usuario.getSenha())
             .roles(roles)
             .build(); 
+    }
+
+    public UserDetails autenticar(Usuario usuario){
+        UserDetails user = loadUserByUsername(usuario.getLogin());
+        boolean senhasBatem = new BCryptPasswordEncoder().matches(usuario.getSenha(), user.getPassword());
+        if(senhasBatem){
+            return user;
+        }
+        throw new SenhaInvalidaException();
     }
 
     

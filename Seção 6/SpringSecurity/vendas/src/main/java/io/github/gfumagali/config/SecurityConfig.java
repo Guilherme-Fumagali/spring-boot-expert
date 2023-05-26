@@ -7,13 +7,16 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.filter.OncePerRequestFilter;
 
+import io.github.gfumagali.security.jwt.JWTService;
+import io.github.gfumagali.security.jwt.JwtAuthFilter;
 import io.github.gfumagali.service.impl.UsuarioServiceImpl;
-
-import static org.springframework.security.config.Customizer.withDefaults;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -23,6 +26,9 @@ public class SecurityConfig {
     @Autowired
     UsuarioServiceImpl usuarioService;
 
+    @Autowired
+    JWTService jwtService;
+
     @Bean 
     DefaultAuthenticationEventPublisher defaultAuthenticationEventPublisher(ApplicationEventPublisher publisher) {
         return new DefaultAuthenticationEventPublisher(publisher);
@@ -30,7 +36,6 @@ public class SecurityConfig {
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        
         http
             .csrf(csrf -> csrf.disable())
             /* .authorizeHttpRequests((authorize) -> authorize
@@ -42,12 +47,19 @@ public class SecurityConfig {
             .authorizeHttpRequests((authorize) -> authorize
             .requestMatchers(HttpMethod.POST, "/api/usuarios/**").permitAll()
                 .anyRequest().permitAll())
-            .httpBasic(withDefaults());
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
     @Bean
     PasswordEncoder passwordEncoder() { 
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    OncePerRequestFilter jwtFilter() {
+        return new JwtAuthFilter(jwtService, usuarioService);
     }
 }
