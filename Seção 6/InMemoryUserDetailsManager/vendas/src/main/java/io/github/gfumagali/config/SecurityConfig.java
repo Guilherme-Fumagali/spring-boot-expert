@@ -24,8 +24,7 @@ public class SecurityConfig {
                         authz.requestMatchers("/api/pedidos/**").hasAnyRole("USER", "ADMIN"))
                 .authorizeHttpRequests((authz) ->
                     authz.requestMatchers("/api/produtos/**").hasRole("ADMIN"))
-                .httpBasic(withDefaults())
-                .formLogin(withDefaults());
+                .httpBasic(withDefaults());
         return http.build();
     }
 
