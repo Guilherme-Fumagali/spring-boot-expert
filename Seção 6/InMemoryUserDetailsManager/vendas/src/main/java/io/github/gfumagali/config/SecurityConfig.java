@@ -19,7 +19,7 @@ public class SecurityConfig {
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests((authz) -> 
-                    authz.requestMatchers("/api/clientes/**").hasAnyRole("USER", "ADMIN"))
+                    authz.requestMatchers("/api/clientes**").hasAnyRole("USER", "ADMIN"))
                 .authorizeHttpRequests((authz) ->
                         authz.requestMatchers("/api/pedidos/**").hasAnyRole("USER", "ADMIN"))
                 .authorizeHttpRequests((authz) ->
